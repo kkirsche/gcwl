@@ -1,10 +1,10 @@
-// Copyright © 2017 NAME HERE <EMAIL ADDRESS>
+// Copyright © 2017 Kevin Kirsche <d3c3pt10n@deceiveyour.team>
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
+// Licensed under the GNU GPLv3 license;
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//     https://www.gnu.org/licenses/gpl-3.0.en.html
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,26 +18,27 @@ import (
 	"fmt"
 	"os"
 
-	homedir "github.com/mitchellh/go-homedir"
+	"github.com/kkirsche/gcwl/libgcwl"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
-var cfgFile string
+var config libgcwl.FlagConfig
 
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
-	Use:   "test",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Use:   "gcwl",
+	Short: "Go Custom Wordlist Generator",
+	Long: `gcwl is a Go-based custom wordlist generator based on CeWL. The goal
+of this project is to improve on the speed of CeWL through concurrency and by
+removing the overhead associated with the Ruby programming language.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
-	//	Run: func(cmd *cobra.Command, args []string) { },
+	Run: func(cmd *cobra.Command, args []string) {
+		libgcwl.PrintBanner()
+		config.SeedURLs = args
+
+		config.RunCrawler()
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -49,41 +50,28 @@ func Execute() {
 	}
 }
 
-func init() { 
-	cobra.OnInitialize(initConfig)
+func init() {
+	// Shorthands used:
+	// a, c, d, e, h, i, k, m, n, o, r, u, w, v
+	RootCmd.Flags().IntVarP(&config.Depth, "depth", "d", 2, "depth to spider to")
+	RootCmd.Flags().IntVarP(&config.MinWordLength, "min_word_length", "m", 3, "minimum word length")
 
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
-	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.test.yaml)")
+	RootCmd.Flags().BoolVarP(&config.IncludeEmail, "email", "e", false, "include any email addresses found during the spider")
+	RootCmd.Flags().StringVarP(&config.EmailFile, "email_file", "f", "", "Optional output file if email address collection is enabled")
 
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	RootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-}
+	RootCmd.Flags().BoolVarP(&config.IncludeMeta, "meta", "a", false, "include any meta data found during the spider")
+	RootCmd.Flags().StringVarP(&config.MetaFile, "meta_file", "i", "", "Optional output file if meta information collection is enabled")
+	RootCmd.Flags().StringVarP(&config.MetaTempDir, "meta-temp-dir", "r", "/tmp", "the temporary directory used when parsing files")
 
-// initConfig reads in config file and ENV variables if set.
-func initConfig() {
-	if cfgFile != "" {
-		// Use config file from the flag.
-		viper.SetConfigFile(cfgFile)
-	} else {
-		// Find home directory.
-		home, err := homedir.Dir()
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
+	RootCmd.Flags().BoolVarP(&config.NoWords, "no-words", "n", false, "don't output the wordlist")
+	RootCmd.Flags().BoolVarP(&config.AllowOffsite, "offsite", "o", false, "let the spider visit other sites")
 
-		// Search config in home directory with name ".test" (without extension).
-		viper.AddConfigPath(home)
-		viper.SetConfigName(".test")
-	}
+	RootCmd.Flags().StringVarP(&config.WriteTo, "write", "w", "", "Write the words to the file")
+	RootCmd.Flags().StringVarP(&config.UserAgent, "ua", "u", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.84 Safari/537.36", "The user agent to send")
 
-	viper.AutomaticEnv() // read in environment variables that match
+	RootCmd.Flags().BoolVarP(&config.KeepDownloaded, "keep", "k", false, "keep the documents that are downloaded")
+	RootCmd.Flags().BoolVarP(&config.Count, "count", "c", false, "show the count for each of the words found")
 
-	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
-	}
+	RootCmd.Flags().BoolVarP(&config.Verbose, "verbose", "v", false, "Enable verbose mode")
+	RootCmd.Flags().IntVarP(&config.WorkerCount, "worker-threads", "t", 4, "The numer of workers to run in parallel")
 }
