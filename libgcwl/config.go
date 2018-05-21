@@ -4,26 +4,14 @@ package libgcwl
 // the user on the command line. Including things like help, verbose, depth,
 // etc.
 type FlagConfig struct {
-	Depth          int
-	MinWordLength  int
-	IncludeEmail   bool
-	EmailFile      string
-	IncludeMeta    bool
-	MetaFile       string
-	NoWords        bool
-	AllowOffsite   bool
-	WriteTo        string
-	UserAgent      string
-	MetaTempDir    string
-	KeepDownloaded bool
-	Count          bool
-	Verbose        bool
-	WorkerCount    int
-	SeedURLs       []string
+	SeedURLs []string `json:"seed_urls",xml:"seed_urls"`
+	Depth    int      `json:"depth",xml:"depth"`
+	Verbose  bool     `json:"verbose",xml:"verbose"`
 }
 
 // CrawlState is used to track information we need during the crawl
 type CrawlState struct {
-	FoundURLs       []string
-	UnprocessedURLs []string
+	FoundURLs       map[string]struct{}
+	UnprocessedURLs map[string]struct{}
+	FoundWords      map[string]struct{}
 }

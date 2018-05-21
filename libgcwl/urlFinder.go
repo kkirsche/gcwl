@@ -10,13 +10,15 @@ import (
 
 // findURLsToDepth is used to find all URLs that we will need to visit up to a
 // specific depth
-func (c *FlagConfig) findURLsToDepth() []string {
+func (c *FlagConfig) findURLsToDepth() map[string]struct{} {
 	urls := c.SeedURLs
-	results := c.SeedURLs
+	results := make(map[string]struct{})
 	for i := 0; i <= c.Depth; i++ {
 		logrus.WithField("remaining-depth", c.Depth-i).Debugln("crawling...")
 		urls = crawl(urls)
-		results = append(results, urls...)
+		for _, url := range urls {
+			results[url] = struct{}{}
+		}
 	}
 
 	return results

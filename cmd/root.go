@@ -52,26 +52,7 @@ func Execute() {
 
 func init() {
 	// Shorthands used:
-	// a, c, d, e, h, i, k, m, n, o, r, u, w, v
-	RootCmd.Flags().IntVarP(&config.Depth, "depth", "d", 2, "depth to spider to")
-	RootCmd.Flags().IntVarP(&config.MinWordLength, "min_word_length", "m", 3, "minimum word length")
-
-	RootCmd.Flags().BoolVarP(&config.IncludeEmail, "email", "e", false, "include any email addresses found during the spider")
-	RootCmd.Flags().StringVarP(&config.EmailFile, "email_file", "f", "", "Optional output file if email address collection is enabled")
-
-	RootCmd.Flags().BoolVarP(&config.IncludeMeta, "meta", "a", false, "include any meta data found during the spider")
-	RootCmd.Flags().StringVarP(&config.MetaFile, "meta_file", "i", "", "Optional output file if meta information collection is enabled")
-	RootCmd.Flags().StringVarP(&config.MetaTempDir, "meta-temp-dir", "r", "/tmp", "the temporary directory used when parsing files")
-
-	RootCmd.Flags().BoolVarP(&config.NoWords, "no-words", "n", false, "don't output the wordlist")
-	RootCmd.Flags().BoolVarP(&config.AllowOffsite, "offsite", "o", false, "let the spider visit other sites")
-
-	RootCmd.Flags().StringVarP(&config.WriteTo, "write", "w", "", "Write the words to the file")
-	RootCmd.Flags().StringVarP(&config.UserAgent, "ua", "u", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.84 Safari/537.36", "The user agent to send")
-
-	RootCmd.Flags().BoolVarP(&config.KeepDownloaded, "keep", "k", false, "keep the documents that are downloaded")
-	RootCmd.Flags().BoolVarP(&config.Count, "count", "c", false, "show the count for each of the words found")
-
-	RootCmd.Flags().BoolVarP(&config.Verbose, "verbose", "v", false, "Enable verbose mode")
-	RootCmd.Flags().IntVarP(&config.WorkerCount, "worker-threads", "t", 4, "The numer of workers to run in parallel")
+	// d, v
+	RootCmd.Flags().IntVarP(&config.Depth, "depth", "d", 2, "depth to spider the seed URLs to")
+	RootCmd.Flags().BoolVarP(&config.Verbose, "verbose", "v", false, "enable verbose logging")
 }
